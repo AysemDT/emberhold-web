@@ -64,13 +64,14 @@ button:disabled{cursor:default;opacity:.55}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:baseline}
 kbd{font-family:var(--display);font-size:15px;background:#fff;border:2px solid var(--ink);border-bottom-width:4px;border-radius:4px;padding:1px 7px;white-space:nowrap}
 .tw{overflow-x:auto}
-table{border-collapse:collapse;width:100%}
+table{border-collapse:collapse;width:100%;color:var(--ink);font-size:inherit}
 td,th{text-align:left;padding:4px 8px;border-bottom:2px dashed var(--parch-deep);vertical-align:top}
 th{font-family:var(--display);font-size:16px}
 .close{float:right;font-family:var(--display);background:var(--brick);color:#fff;border:3px solid var(--ink);border-radius:4px;padding:2px 10px;font-size:16px}
 .split{display:flex;height:30px;border:3px solid var(--ink);border-radius:4px;overflow:hidden;margin:10px 0 6px}
 .split span{display:grid;place-items:center;color:#fff;font-family:var(--display);font-size:14px;text-shadow:1px 1px 0 var(--ink);min-width:0}
 .sw{display:inline-block;width:10px;height:10px;border:2px solid var(--ink);margin-right:6px}
+a.instr.early{text-decoration:none;background:var(--ink);color:#ccff00;border-color:#ccff00}
 .ca{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .ca code{font-family:var(--body);font-size:19px;background:#fff;border:2px solid var(--ink);border-radius:4px;padding:3px 8px;overflow-wrap:anywhere;min-width:0;flex:1}
 .ca .close{float:none}
@@ -97,6 +98,16 @@ th{font-family:var(--display);font-size:16px}
 .qrow .fbar{grid-column:1 / -1}
 .fbar{height:12px;border:2px solid var(--ink);border-radius:4px;background:rgba(0,0,0,.12);overflow:hidden}
 .fbar i{display:block;height:100%;background:linear-gradient(90deg,#7fb6d8,#2f5fb8)}
+.fbar.ember i{background:linear-gradient(90deg,#e4ff6a,#86b300)}
+.preview{background:var(--ink);color:#ccff00;font-family:var(--display);font-size:15px;line-height:1.25;padding:8px 12px;border-radius:4px;margin:0 0 10px}
+.erow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;padding:6px 0;border-bottom:2px dashed var(--parch-deep)}
+.erow .fbar,.erow small{grid-column:1 / -1}
+.erow small{font-size:17px;color:#4a4e5a}
+.erow .btn.sm{justify-self:end}
+.erow b{font-family:var(--display);font-size:18px}
+.erow .num{font-family:var(--display);font-size:16px;font-variant-numeric:tabular-nums}
+.vrow{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.mini.ember{background:var(--ink);color:#ccff00;border-color:#ccff00}
 .padlock{position:relative;display:inline-block;width:12px;height:9px;margin-top:6px;background:var(--gold);border:2px solid var(--ink);border-radius:2px;flex:none}
 .padlock::before{content:"";position:absolute;left:1px;bottom:100%;width:6px;height:6px;border:2px solid var(--ink);border-bottom:0;border-radius:5px 5px 0 0}
 .padlock.dark{background:#8a8f9b}
@@ -237,8 +248,10 @@ th{font-family:var(--display);font-size:16px}
     <button data-tab="ranks">Kingdom Ranks</button>
     <button data-tab="field">Field Guide</button>
     <button data-tab="treasury">Royal Treasury</button>
+    <button data-tab="earn">Play to Earn</button>
   </nav>
   <button id="bInstr" class="instr"><span class="q">?</span>Instructions</button>
+  <a id="bEarly" class="instr early" href="/early-access" hidden>Early Access · earn XP</a>
 </main>
 <footer id="foot">Emberhold · five islands, one crown · your kingdom saves in this browser</footer>
 
@@ -255,12 +268,13 @@ th{font-family:var(--display);font-size:16px}
   </div>
   <div id="bossbar" hidden><b id="bossName"></b><div class="bar"><i id="bossFill"></i></div></div>
   <div class="tr">
+    <button id="bVault" class="mini ember" title="Royal Vault (V)">0.00 EMBER</button>
     <button id="bSound" class="mini">Sound on</button>
     <button id="bMenu" class="mini">Menu</button>
   </div>
   <div id="toast"></div>
   <nav id="isleBar" aria-label="Travel"></nav>
-  <div id="keyhint">WASD move · Space strike · E use · Q potion · B hall · T tower · <b>1–5 islands</b> · <b>M map</b> · Esc menu</div>
+  <div id="keyhint">WASD move · Space strike · E use · Q potion · B hall · T tower · <b>V vault</b> · <b>1–5 islands</b> · <b>M map</b> · Esc menu</div>
   <div id="touch">
     <div id="stick"><div id="knob"></div></div>
     <div class="acts">
@@ -284,6 +298,7 @@ th{font-family:var(--display);font-size:16px}
       <button role="tab" data-tab="ranks">Kingdom Ranks</button>
       <button role="tab" data-tab="field">Field Guide</button>
       <button role="tab" data-tab="treasury">Royal Treasury</button>
+      <button role="tab" data-tab="earn">Play to Earn</button>
     </div>
     <section data-pane="how">
       <div class="keys">
@@ -294,6 +309,7 @@ th{font-family:var(--display);font-size:16px}
         <span><kbd>1</kbd>–<kbd>5</kbd></span><span>Sail straight to an island: 1 Emberhold, 2 Frostmere, 3 Sunscar, 4 Mirewood, 5 Cinderpeak. Works once the dock is repaired.</span>
         <span><kbd>M</kbd></span><span>Open the sea chart to see every island and what it needs.</span>
         <span><kbd>B</kbd> <kbd>T</kbd></span><span>Build a hall or an archer tower where you face. Home isle only.</span>
+        <span><kbd>V</kbd></span><span>Open the Royal Vault to see what you earned today, spend in the Market or try a starter pack.</span>
         <span><kbd>Esc</kbd></span><span>Pause and open the menu.</span>
       </div>
       <h3>The loop</h3>
@@ -347,6 +363,10 @@ th{font-family:var(--display);font-size:16px}
         </tbody>
       </table></div>
     </section>
+    <section data-pane="earn" hidden>
+      <p class="preview" id="earnPreview"></p>
+      <div id="earnGuide"></div>
+    </section>
     <section data-pane="treasury" hidden>
       <h3 style="margin-top:0">Island Fund</h3>
       <p id="feeLead"></p>
@@ -372,6 +392,7 @@ th{font-family:var(--display);font-size:16px}
       <span><kbd>E</kbd></span><span>Use what is next to you: repair the dock, board the boat, open the forge.</span>
       <span><kbd>B</kbd> <kbd>T</kbd></span><span>Build a hall or an archer tower on your home isle.</span>
       <span><kbd>Q</kbd></span><span>Drink a potion to refill every heart.</span>
+      <span><kbd>V</kbd></span><span>Open the Royal Vault: your $EMBER earnings, the Market and starter packs.</span>
       <span><kbd>Esc</kbd></span><span>Pause the game.</span>
     </div>
     <h3>Travel between islands</h3>
@@ -398,6 +419,14 @@ th{font-family:var(--display);font-size:16px}
     <h2 id="fTitle">Keep Forge</h2>
     <p>Turn what you carry home from the islands into gear.</p>
     <div id="forgeList"></div>
+  </div>
+</div>
+
+<div id="vault" class="veil" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="vTitle">
+    <button class="close" data-close="vault">Close</button>
+    <h2 id="vTitle">Royal Vault</h2>
+    <div id="vBody"></div>
   </div>
 </div>
 
@@ -808,9 +837,39 @@ const SAVE = 'emberhold.v2', SAVE_OLD = 'emberhold.v1';
 const COST = { house: { wood: 8, stone: 4, gold: 10 }, tower: { wood: 6, stone: 12, gold: 25 } };
 const DOCK_COST = { wood: 16, stone: 10 };
 const RANKS = [[22, 'Kingdom'], [15, 'Barony'], [10, 'Town'], [5, 'Village'], [2, 'Hamlet'], [0, 'Camp']];
+
+/* ---------- $EMBER play to earn: edit these values by hand ---------- */
+const ECO = {
+  preview: true,     // true = balances are simulated in this browser, nothing is paid out yet
+  caps: {            // daily earning caps in EMBER, one per rank: Camp, Hamlet, Village, Town, Barony, Kingdom
+    passive: [1, 2, 4, 6, 9, 13],
+    expedition: [2, 4, 7, 10, 14, 20],
+    defense: [1, 2, 3, 5, 7, 10]
+  },
+  withdraw: [2, 4, 7, 11, 17, 26],   // daily withdraw limit per rank
+  hallRate: .02,     // EMBER per hall on every 6 second gold tick
+  awayRate: .25,     // EMBER per hall per hour while you are away (up to 24 hours)
+  oreRate: .04,      // EMBER per island resource picked up away from home
+  bossStars: 3, starPay: 2,   // a guardian gives 3 stars, each star pays 2 EMBER
+  nightPay: 1,       // EMBER for each night held at home, +20% per tower
+  burn: 60,          // % of every Market spend that is burned, the rest refills the Reward Pool
+  depositFee: 3, withdrawFee: 5,
+  packs: [           // each pack is bought once, in ETH, and raises the daily passive cap for good
+    { name: 'Settler', eth: .001, cap: .3 },
+    { name: 'Squire', eth: .0025, cap: .8 },
+    { name: 'Knight', eth: .005, cap: 1.8 },
+    { name: 'Baron', eth: .012, cap: 4.5 },
+    { name: 'Monarch', eth: .018, cap: 7 }
+  ],
+  market: [          // sells time and supplies, never strength
+    { id: 'dawn', name: "Builder's Hourglass", desc: 'Skip straight to the next morning.', cost: 1.5 },
+    { id: 'crate', name: 'Supply Crate', desc: '+15 wood and +10 stone, delivered to your pack.', cost: 2 }
+  ]
+};
+const freshEco = () => ({ bal: 0, wallet: 0, day: '', today: { passive: 0, expedition: 0, defense: 0 }, out: 0, earned: 0, burned: 0, pool: 0, packs: [], seen: Date.now() });
 const freshInv = () => ({ gold: 10, wood: 0, stone: 0, ice: 0, ore: 0, shroom: 0, obsidian: 0 });
 const S = { mode: 'title', guest: false, inv: freshInv(), hp: 6, builds: [], time: 20, T: 0, gT: 0, regen: 0, spawnT: 0, shake: 0, saveT: 0,
-  potions: 0, up: { sword: 0, armor: 0, frost: 0, gild: 0, fire: 0 }, dock: false, bosses: {}, won: false, seen: {} };
+  potions: 0, up: { sword: 0, armor: 0, frost: 0, gild: 0, fire: 0 }, dock: false, bosses: {}, won: false, seen: {}, eco: freshEco(), lastDay: null };
 const P = { x: keep.x, y: keep.y + 22, vx: 0, vy: 0, fx: 0, fy: 1, anim: 0, atk: 0, inv: 0, side: 1, tool: 'sword' };
 let mobs = [], drops = [], parts = [], floats = [], arrows = [], shots = [], boss = null, weather = [];
 const boats = [0, 2.1, 4.2].map((a, i) => ({ a, sp: (i % 2 ? -1 : 1) * (.035 + i * .006), rx: MW * TS * (.47 - i * .015), ry: MH * TS * (.47 - i * .02) }));
@@ -828,6 +887,7 @@ function load(){
     if (d) {
       Object.assign(S.inv, d.inv || {}); S.builds = (d.builds || []).map(b => ({ ...b, cd: 0 })); S.time = d.time || 20;
       S.potions = d.potions | 0; Object.assign(S.up, d.up || {}); S.dock = !!d.dock; S.bosses = d.bosses || {}; S.won = !!d.won; S.seen = d.seen || {};
+      S.eco = Object.assign(freshEco(), d.eco || {});
       return;
     }
     const o = JSON.parse(localStorage.getItem(SAVE_OLD) || 'null');
@@ -836,7 +896,8 @@ function load(){
 }
 function save(){
   if (S.guest) return;
-  try { localStorage.setItem(SAVE, JSON.stringify({ inv: S.inv, time: S.time, potions: S.potions, up: S.up, dock: S.dock, bosses: S.bosses, won: S.won, seen: S.seen,
+  S.eco.seen = Date.now();
+  try { localStorage.setItem(SAVE, JSON.stringify({ inv: S.inv, time: S.time, potions: S.potions, up: S.up, dock: S.dock, bosses: S.bosses, won: S.won, seen: S.seen, eco: S.eco,
     builds: S.builds.map(({ k, x, y, v }) => ({ k, x, y, v })) })); } catch (e) {}
 }
 
@@ -906,6 +967,7 @@ addEventListener('keydown', e => {
   if (k === 'e') useThing();
   if (k === 'q') drink();
   if (k === 'm') openSea();
+  if (k === 'v') openVault();
   if (k >= '1' && k <= '9') sailKey(+k - 1);
   if (k === 'escape') pause();
 });
@@ -1078,8 +1140,9 @@ function wakeBoss(){
   $('bossName').textContent = d.name; $('bossbar').hidden = false;
 }
 function beatBoss(){
-  const d = BOSSES[boss.id];
+  const d = BOSSES[boss.id], first = !S.bosses[boss.id];
   S.bosses[boss.id] = true;
+  if (first) earn('expedition', ECO.bossStars * ECO.starPay, boss.x, boss.y - 48);
   burst(boss.x, boss.y - 18, d.col, 50, 160); burst(boss.x, boss.y - 18, '#ffffff', 20, 120);
   drop(boss.x, boss.y, 'gold', 12, Math.ceil(d.gold / 12)); drop(boss.x, boss.y, NODES[ISLES[boss.id].node].res, 6);
   S.shake = .5; sfx.win();
@@ -1219,11 +1282,18 @@ function update(dt){
     const rest = wd.keep ? Math.hypot(P.x - keep.x, P.y - keep.y) < 75 : Math.hypot(P.x - wd.camp.x, P.y - wd.camp.y) < 48;
     if (rest && S.hp < maxHp()) { S.regen += dt; if (S.regen > 2.5) { S.regen = 0; S.hp++; float(P.x, P.y - 20, '+1 heart', '#ff8a8a'); updateHud(true); } }
 
+    // holding the night at home pays the defense reward at dawn
+    const dayN = Math.floor(S.time / 180);
+    if (dayN !== S.lastDay) {
+      if (S.lastDay !== null && wd.keep && S.hp > 0) { const got = earn('defense', ECO.nightPay * (1 + .2 * (S.builds.length - houses())), keep.x, keep.y - 44); if (got) toast(`Night held. +${emb(got)} EMBER for the defense.`); }
+      S.lastDay = dayN;
+    }
+
     S.gT += dt;
     if (S.gT >= 6) {
       S.gT = 0; const per = S.up.gild ? 2 : 1; let n = 0;
       for (const b of S.builds) if (b.k === 'house') { n++; if (wd.keep) float(b.x, b.y - 30, '+' + per, '#f2c641'); }
-      if (n) { S.inv.gold += n * per; updateHud(true); }
+      if (n) { S.inv.gold += n * per; earn('passive', n * ECO.hallRate); updateHud(true); }
     }
     if (wd.keep) for (const t of S.builds) if (t.k === 'tower') {
       t.cd -= dt; if (t.cd > 0) continue;
@@ -1276,6 +1346,7 @@ function update(dt){
     if (d < 34) { p.x += (P.x - p.x) * Math.min(1, dt * 9); p.y += (P.y - 3 - p.y) * Math.min(1, dt * 9); }
     if (d < 7) {
       p.got = true; S.inv[p.res] += p.val;
+      if (!wd.keep && !['gold', 'wood', 'stone'].includes(p.res)) earn('expedition', ECO.oreRate * p.val, P.x + 14, P.y - 34);
       if (p.res === 'gold') sfx.coin(); else beep(p.res === 'wood' ? 420 : 300, .05, 'triangle', .04);
       float(P.x, P.y - 22, `+${p.val} ${RES[p.res][0]}`, RES[p.res][1]); updateHud(true);
     }
@@ -1566,6 +1637,7 @@ function updateHud(force){
   if (needHtml !== gl2) { $('goalList').innerHTML = gl2; needHtml = gl2; }
   $('rHouses').textContent = houses(); $('rTowers').textContent = S.builds.length - houses(); $('rTroph').textContent = trophies();
   $('rank').textContent = rankName();
+  const vb = emb(S.eco.bal) + ' EMBER'; if ($('bVault').textContent !== vb) $('bVault').textContent = vb;
   const gt = goal().text; if ($('goalText').textContent !== gt) $('goalText').textContent = gt;
   $('isleName').textContent = wd.def.name + (wd.keep ? ' · home' : '');
   const ph = (S.time % 180) / 180;
@@ -1730,7 +1802,7 @@ $('winOk').onclick = () => closePanel('win');
 function enter(guest){
   initAudio();
   S.guest = guest;
-  Object.assign(S, { inv: freshInv(), builds: [], time: 20, potions: 0, up: { sword: 0, armor: 0, frost: 0, gild: 0, fire: 0 }, dock: false, bosses: {}, won: false, seen: {} });
+  Object.assign(S, { inv: freshInv(), builds: [], time: 20, potions: 0, up: { sword: 0, armor: 0, frost: 0, gild: 0, fire: 0 }, dock: false, bosses: {}, won: false, seen: {}, eco: freshEco() });
   if (guest) { Object.assign(S.inv, { gold: 60, wood: 30, stone: 20 }); S.dock = true; }
   else load();
   wd = getWorld('home');
@@ -1741,8 +1813,11 @@ function enter(guest){
   S.mode = 'play';
   $('title').hidden = true; $('foot').hidden = true; $('hud').hidden = false; $('guestTag').hidden = !guest;
   updateHud(true);
+  S.lastDay = Math.floor(S.time / 180);
+  const away = awayEarnings();
   toast(guest ? 'Guest mode: every island is open, monsters will not bite and nothing is saved.'
-    : S.builds.length ? `Welcome back to your ${rankName()}.` : 'Strike a pine (Space) to gather wood.', 3.2);
+    : away ? `Welcome back. While you were away your halls earned ${emb(away)} EMBER.`
+    : S.builds.length ? `Welcome back to your ${rankName()}.` : 'Strike a pine (Space) to gather wood.', 3.6);
 }
 function toTitle(){
   save();
@@ -1771,13 +1846,120 @@ $('pReset').onclick = () => {
   toast('Kingdom reset. A fresh camp awaits.');
 };
 
+/* ---------- $EMBER play to earn ---------- */
+const rankIdx = () => RANKS.length - 1 - RANKS.findIndex(([n]) => houses() >= n);
+const emb = v => (Math.floor(v * 100 + 1e-6) / 100).toFixed(2);
+const utcDay = () => new Date().toISOString().slice(0, 10);
+const packCap = () => S.eco.packs.reduce((s, n) => s + (ECO.packs.find(p => p.name === n)?.cap || 0), 0);
+const capOf = src => ECO.caps[src][rankIdx()] + (src === 'passive' ? packCap() : 0);
+const SRC = { passive: ['Passive', 'Your halls earn while you play and while you are away.'],
+  expedition: ['Expedition', 'Rare resources from other islands, and 3 stars for every guardian you defeat.'],
+  defense: ['Defense', 'Hold the night at home. Towers raise the reward.'] };
+const PREVIEW_NOTE = 'Preview: $EMBER is not launched yet. Balances live in this browser and nothing is paid out. No amount and no price is promised.';
+function ecoDay(){
+  const d = utcDay();
+  if (S.eco.day !== d) { S.eco.day = d; S.eco.today = { passive: 0, expedition: 0, defense: 0 }; S.eco.out = 0; }
+}
+const capSaid = {};
+function earn(src, amt, x, y){
+  if (S.guest) return 0;
+  ecoDay();
+  const add = Math.min(amt, Math.max(0, capOf(src) - S.eco.today[src]));
+  if (add <= 0) {
+    if (!capSaid[src + S.eco.day]) { capSaid[src + S.eco.day] = 1; toast(`Daily ${SRC[src][0].toLowerCase()} cap reached. A higher rank raises it.`); }
+    return 0;
+  }
+  S.eco.today[src] += add; S.eco.bal += add; S.eco.earned += add;
+  if (x !== undefined) float(x, y, `+${emb(add)} EMBER`, '#ccff00');
+  if (!$('vault').hidden) renderVault();
+  return add;
+}
+function awayEarnings(){
+  const hrs = Math.min(24, Math.max(0, (Date.now() - (S.eco.seen || Date.now())) / 3.6e6));
+  S.eco.seen = Date.now();
+  return hrs > .02 && houses() ? earn('passive', houses() * ECO.awayRate * hrs) : 0;
+}
+function renderVault(){
+  ecoDay();
+  const e = S.eco, r = rankIdx(), lim = ECO.withdraw[r], left = Math.max(0, Math.min(e.bal, lim - e.out));
+  const rows = Object.keys(SRC).map(k => {
+    const cap = capOf(k), pct = Math.min(100, e.today[k] / cap * 100);
+    return `<div class="erow"><b>${SRC[k][0]}</b><span class="num">${emb(e.today[k])} / ${emb(cap)}</span><div class="fbar ember"><i style="width:${pct}%"></i></div><small>${SRC[k][1]}</small></div>`;
+  }).join('');
+  const market = ECO.market.map(m => `<div class="erow"><b>${m.name}</b><button class="btn sm ${e.bal >= m.cost ? 'go' : 'ghost'}" data-buy="${m.id}" ${e.bal >= m.cost ? '' : 'disabled'}>${emb(m.cost)} EMBER</button><small>${m.desc}</small></div>`).join('');
+  const packs = ECO.packs.map(p => {
+    const has = e.packs.includes(p.name);
+    return `<div class="erow"><b>${p.name} · ${p.eth} ETH</b><button class="btn sm ${has ? 'ghost' : 'go'}" data-pack="${p.name}" ${has ? 'disabled' : ''}>${has ? 'Owned' : ECO.preview ? 'Try free' : 'Buy'}</button><small>+${emb(p.cap)} EMBER to your daily passive cap, for good.</small></div>`;
+  }).join('');
+  $('vBody').innerHTML = `${ECO.preview ? `<p class="preview">${PREVIEW_NOTE}</p>` : ''}
+    <div class="stats">
+      <div class="stat"><b>${emb(e.bal)}</b><small>In the vault · EMBER</small></div>
+      <div class="stat"><b>${emb(e.wallet)}</b><small>In your wallet · EMBER</small></div>
+      <div class="stat"><b>${emb(e.earned)}</b><small>Earned all time</small></div>
+      <div class="stat"><b>${emb(e.burned)}</b><small>Burned by you</small></div>
+    </div>
+    <h3>Today · ${rankName()}</h3>${rows}
+    <p><small>Caps reset every day at 00:00 UTC. A higher rank raises every cap.</small></p>
+    <h3>Withdraw</h3>
+    <div class="erow"><b>Daily limit</b><span class="num">${emb(e.out)} / ${emb(lim)}</span><div class="fbar ember"><i style="width:${Math.min(100, e.out / lim * 100)}%"></i></div>
+      <small>Withdrawing moves EMBER from the vault to your wallet with a ${ECO.withdrawFee}% fee. Depositing back costs ${ECO.depositFee}%. Fees are split half burned, half to the Reward Pool.</small></div>
+    <div class="vrow"><button class="btn sm ${left > 0 ? 'go' : 'ghost'}" data-act="out" ${left > 0 ? '' : 'disabled'}>Withdraw ${emb(left)}</button>
+      <button class="btn sm ${e.wallet > 0 ? 'how' : 'ghost'}" data-act="in" ${e.wallet > 0 ? '' : 'disabled'}>Deposit ${emb(e.wallet)}</button></div>
+    <h3>Market</h3><p><small>Sells time and supplies, never strength. ${ECO.burn}% of every spend is burned, ${100 - ECO.burn}% refills the Reward Pool.</small></p>${market}
+    <h3>Starter packs</h3><p><small>${ECO.preview ? 'Try any pack free during the preview. At launch each' : 'Each'} pack is bought once, in ETH.</small></p>${packs}`;
+}
+function openVault(){ renderVault(); openPanel('vault'); }
+$('bVault').onclick = openVault;
+$('vault').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b || b.disabled) return;
+  const e = S.eco, lim = ECO.withdraw[rankIdx()];
+  if (b.dataset.act === 'out') {
+    const amt = Math.min(e.bal, lim - e.out), fee = amt * ECO.withdrawFee / 100;
+    e.bal -= amt; e.out += amt; e.wallet += amt - fee; e.burned += fee / 2; e.pool += fee / 2;
+    toast(`Withdrew ${emb(amt - fee)} EMBER to your wallet (${emb(fee)} fee).`); sfx.coin();
+  } else if (b.dataset.act === 'in') {
+    const fee = e.wallet * ECO.depositFee / 100;
+    e.bal += e.wallet - fee; e.burned += fee / 2; e.pool += fee / 2; e.wallet = 0;
+    toast(`Deposited back to the vault (${emb(fee)} fee).`);
+  } else if (b.dataset.buy) {
+    const m = ECO.market.find(x => x.id === b.dataset.buy);
+    e.bal -= m.cost; e.burned += m.cost * ECO.burn / 100; e.pool += m.cost * (100 - ECO.burn) / 100;
+    if (m.id === 'dawn') { S.time = (Math.floor(S.time / 180) + 1) * 180 + 2; S.lastDay = Math.floor(S.time / 180); }
+    if (m.id === 'crate') { S.inv.wood += 15; S.inv.stone += 10; }
+    toast(`${m.name} bought. ${emb(m.cost * ECO.burn / 100)} EMBER burned.`); sfx.build();
+  } else if (b.dataset.pack) {
+    e.packs.push(b.dataset.pack);
+    toast(`${b.dataset.pack} pack ${ECO.preview ? 'active for the preview' : 'bought'}. Your daily passive cap is now ${emb(capOf('passive'))} EMBER.`); sfx.potion();
+  } else return;
+  save(); updateHud(true); renderVault();
+});
+$('earnPreview').textContent = PREVIEW_NOTE;
+// the early access list only lives on the real site
+if (/^https?:$/.test(location.protocol) && !/claude/.test(location.hostname)) $('bEarly').hidden = false;
+$('earnGuide').innerHTML = `<p>Play Emberhold and earn <b>$EMBER</b> every day from three sources. Every cap grows with your rank.</p>
+  <div class="keys">${Object.keys(SRC).map(k => `<span><b>${SRC[k][0]}</b></span><span>${SRC[k][1]}</span>`).join('')}</div>
+  <h3>Daily caps and withdraw limits</h3>
+  <div class="tw"><table><thead><tr><th>Rank</th><th>Passive</th><th>Expedition</th><th>Defense</th><th>Withdraw</th></tr></thead><tbody>
+  ${RANKS.slice().reverse().map(([, n], i) => `<tr><td>${n}</td><td>${ECO.caps.passive[i]}</td><td>${ECO.caps.expedition[i]}</td><td>${ECO.caps.defense[i]}</td><td>${ECO.withdraw[i]}</td></tr>`).join('')}
+  </tbody></table></div>
+  <h3>Starter packs</h3>
+  <p>Start free, or start strong. Each pack is bought once, in ETH, and raises your daily passive cap for good.</p>
+  <div class="tw"><table><thead><tr><th>Pack</th><th>Price</th><th>Passive cap</th></tr></thead><tbody>
+  ${ECO.packs.map(p => `<tr><td>${p.name}</td><td>${p.eth} ETH</td><td>+${emb(p.cap)} EMBER a day</td></tr>`).join('')}
+  </tbody></table></div>
+  <h3>Where rewards come from</h3>
+  <p>The Reward Pool is refilled by 1% of the 2% trading toll, ${100 - ECO.burn}% of every Market spend and half of every vault fee. ${ECO.burn}% of Market spends and the other half of vault fees are burned.</p>
+  <p>Vault fees: ${ECO.depositFee}% to deposit, ${ECO.withdrawFee}% to withdraw. Nothing for sale adds strength. Token prices can fall.</p>`;
+
 /* ---------- token fee: edit these values when the token goes live ---------- */
 const TOKEN = {
   ticker: 'EMBER',
   ca: '',            // paste the contract address here once launched
-  fee: 2             // percent on every buy and sell, all of it to the Island Fund
+  fee: 2,            // percent on every buy and sell
+  fund: 1,           // of that, percent to the Island Fund
+  pool: 1            // and percent to the Reward Pool that pays players
 };
-$('feeLead').innerHTML = `Every buy and sell of <b>$${TOKEN.ticker}</b> pays a fixed <b>${TOKEN.fee}%</b> toll in ETH. All of it goes to the Island Fund, which pays the Royal Builders to raise new islands. Wallet transfers are free.`;
+$('feeLead').innerHTML = `Every buy and sell of <b>$${TOKEN.ticker}</b> pays a fixed <b>${TOKEN.fee}%</b> toll in ETH. <b>${TOKEN.fund}%</b> goes to the Island Fund, which pays the Royal Builders to raise new islands, and <b>${TOKEN.pool}%</b> to the Reward Pool, which buys back $${TOKEN.ticker} to pay players for playing. Wallet transfers are free.`;
 $('fundStats').innerHTML = [['ETH in the fund', FUND.eth], ['Total collected', FUND.collected], ['Spent on islands', FUND.spent], ['Islands built', FUND.ledger.length]]
   .map(([l, v], i) => `<div class="stat"><b>${i < 3 ? ethFmt(v) : v}</b><small>${l}${i < 3 ? ' · ETH' : ''}</small></div>`).join('');
 $('ledger').innerHTML = FUND.ledger.length

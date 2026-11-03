@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emberhold Early Access</title>
+<meta name="description" content="Join the Emberhold early access list. Answer the call, earn XP and climb the board.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=VT323&display=swap">
+<style>
+:root{
+  --ink:#1b1f2a; --parch:#f4e6c4; --parch-deep:#e2cd9c; --lime:#ccff00; --lime-deep:#86b300; --leaf:#4fa046; --brick:#b8483a;
+  --night:#07090c; --stone:#1a1d22; --muted:#4a4e5a;
+  --display:"Pixelify Sans",ui-monospace,monospace; --body:VT323,ui-monospace,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--night);color:var(--parch);font-family:var(--body);font-size:21px;line-height:1.2;
+  background-image:radial-gradient(circle at 50% 0,rgba(204,255,0,.12),transparent 55%);min-height:100vh}
+a{color:var(--lime)}
+.wrap{max-width:980px;margin:0 auto;padding:28px 16px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+.brand{font-family:var(--display);font-weight:700;font-size:30px;color:var(--lime);text-decoration:none;text-shadow:0 0 18px rgba(204,255,0,.45)}
+.play{font-family:var(--display);font-size:17px;color:var(--ink);background:var(--lime);border:3px solid var(--ink);border-radius:6px;padding:8px 14px;text-decoration:none;box-shadow:0 4px 0 var(--lime-deep)}
+h1{font-family:var(--display);font-size:clamp(34px,6vw,58px);margin:0 0 8px;color:#fff;text-wrap:balance}
+.lead{max-width:62ch;margin:0 0 22px;color:#d9dccf;text-wrap:pretty}
+.rules{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 26px;padding:0;list-style:none}
+.rules li{font-family:var(--display);font-size:15px;border:2px solid var(--lime);color:var(--lime);border-radius:4px;padding:5px 10px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}
+@media (max-width:760px){.grid{grid-template-columns:minmax(0,1fr)}}
+.sheet{background:var(--parch);color:var(--ink);border:4px solid var(--ink);border-radius:8px;box-shadow:inset 0 0 0 4px var(--parch-deep),0 8px 0 rgba(0,0,0,.45);padding:18px 20px 20px;min-width:0}
+.sheet h2{font-family:var(--display);font-size:26px;margin:0 0 6px}
+.sheet p{margin:4px 0 12px;color:var(--muted)}
+label{display:block;font-family:var(--display);font-size:15px;margin:12px 0 4px}
+input{width:100%;font-family:var(--body);font-size:21px;padding:7px 10px;border:3px solid var(--ink);border-radius:5px;background:#fff8e6;color:var(--ink)}
+input:focus{outline:3px solid var(--lime-deep);outline-offset:1px}
+input[aria-invalid="true"]{border-color:var(--brick)}
+.task{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:2px dashed var(--parch-deep)}
+.task:last-of-type{border-bottom:0}
+.tick{width:28px;height:28px;border:3px solid var(--ink);border-radius:4px;background:#fff8e6;display:grid;place-items:center;font-family:var(--display);font-size:18px;color:#fff}
+.task.done .tick{background:var(--leaf)}
+.task b{font-family:var(--display);font-size:17px;display:block}
+.task small{color:var(--muted);font-size:18px}
+.xp{font-family:var(--display);font-size:14px;background:var(--ink);color:var(--lime);border-radius:3px;padding:2px 6px;margin-left:6px}
+.btn{font-family:var(--display);font-weight:600;font-size:16px;border:3px solid var(--ink);border-radius:6px;padding:7px 12px;color:#fff;background:var(--leaf);cursor:pointer;
+  box-shadow:inset 0 3px 0 rgba(255,255,255,.28),inset 0 -3px 0 rgba(0,0,0,.25),0 3px 0 var(--ink);text-decoration:none;white-space:nowrap}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.btn.ghost{background:#9a9486}
+.btn.big{width:100%;font-size:21px;padding:12px;margin-top:16px;background:var(--ink);color:var(--lime);box-shadow:0 5px 0 var(--lime-deep)}
+.btn[disabled]{opacity:.55;cursor:default}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;font-family:var(--display)}
+.total b{font-size:34px;color:var(--ink)}
+.bar{height:14px;border:2px solid var(--ink);border-radius:4px;background:rgba(0,0,0,.12);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#e4ff6a,#86b300);transition:width .3s}
+.msg{min-height:1.2em;margin-top:10px;font-family:var(--display);font-size:16px}
+.msg.ok{color:var(--leaf)} .msg.err{color:var(--brick)}
+.board{margin-top:18px}
+table{border-collapse:collapse;width:100%;color:var(--ink);font-size:inherit}
+td,th{text-align:left;padding:5px 8px;border-bottom:2px dashed var(--parch-deep)}
+th{font-family:var(--display);font-size:15px}
+td.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.me td{background:#eaffb0}
+.cut td{border-bottom:3px solid var(--lime-deep)}
+.empty{color:var(--muted)}
+.note{font-size:17px;color:#9da396;margin-top:22px;max-width:70ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="/">EMBERHOLD</a>
+    <a class="play" href="/">Play the game</a>
+  </header>
+
+  <h1>Early Access</h1>
+  <p class="lead">Answer the call, earn XP and climb the board. When $EMBER launches, the lords on this list are the first to earn it, in waves by their place.</p>
+  <ul class="rules">
+    <li>Top 100 join the allowlist</li>
+    <li>150 more are drawn from the list</li>
+    <li>No funds, no signature</li>
+  </ul>
+
+  <div class="grid">
+    <section class="sheet" aria-labelledby="joinTitle">
+      <h2 id="joinTitle">Join the list</h2>
+      <p>Your X username and a wallet address. Nothing is signed and nothing moves.</p>
+      <label for="handle">X username</label>
+      <input id="handle" placeholder="@yourname" autocomplete="off" spellcheck="false">
+      <label for="wallet">EVM wallet address</label>
+      <input id="wallet" placeholder="0x..." autocomplete="off" spellcheck="false">
+
+      <h2 style="margin-top:18px">Tasks</h2>
+      <div id="tasks"></div>
+
+      <div class="total"><span>Your XP</span><b id="xp">0</b></div>
+      <div class="bar"><i id="xpBar"></i></div>
+      <button id="join" class="btn big">Join the list</button>
+      <div id="msg" class="msg" role="status"></div>
+    </section>
+
+    <section class="sheet board" aria-labelledby="boardTitle" style="margin-top:0">
+      <h2 id="boardTitle">The board</h2>
+      <p id="boardLead">Top lords by XP.</p>
+      <div id="board"><p class="empty">Loading the board.</p></div>
+    </section>
+  </div>
+
+  <p class="note">The list keeps your X username, a wallet address and your XP. We never ask for a seed phrase or a private key. Anyone who does is not us. $EMBER is not launched yet; no amount and no price is promised.</p>
+</div>
+
+<script>
+/* ---------- edit these by hand ---------- */
+const EA = {
+  x: 'emberhold',            // the Emberhold X account, without @
+  post: '',                  // link to the launch post to like, repost and reply to
+  api: '/api/early-access'
+};
+
+const TASKS = [
+  { id: 'follow', name: 'Follow Emberhold on X', xp: 100, url: () => `https://x.com/intent/follow?screen_name=${EA.x}` },
+  { id: 'like', name: 'Like the launch post', xp: 100, url: () => EA.post || `https://x.com/${EA.x}` },
+  { id: 'repost', name: 'Repost the launch post', xp: 100, url: () => EA.post || `https://x.com/${EA.x}` },
+  { id: 'reply', name: 'Reply with your kingdom name', xp: 100, url: () => EA.post || `https://x.com/${EA.x}` }
+];
+const BASE_XP = 50, GAME_MAX = 600;
+const $ = id => document.getElementById(id);
+const store = { get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const me = store.get('emberhold.ea') || { handle: '', wallet: '', done: [] };
+
+// XP from the game save on this site: rank, guardians and EMBER earned
+function gameXp(){
+  const d = store.get('emberhold.v2');
+  if (!d) return { xp: 0, text: 'Start a kingdom to earn XP.' };
+  const halls = (d.builds || []).filter(b => b.k === 'house').length, trophies = Object.values(d.bosses || {}).filter(Boolean).length, earned = d.eco?.earned || 0;
+  const xp = Math.min(GAME_MAX, halls * 10 + trophies * 75 + Math.floor(earned * 5));
+  return { xp, text: `${halls} halls, ${trophies} guardians, ${earned.toFixed(2)} EMBER earned.` };
+}
+function render(){
+  const g = gameXp();
+  $('tasks').innerHTML = TASKS.map(t => {
+    const done = me.done.includes(t.id);
+    return `<div class="task${done ? ' done' : ''}"><span class="tick">${done ? '✓' : ''}</span><span><b>${t.name}<span class="xp">+${t.xp} XP</span></b></span>
+      <a class="btn${done ? ' ghost' : ''}" href="${t.url()}" target="_blank" rel="noopener" data-task="${t.id}">${done ? 'Done' : 'Go'}</a></div>`;
+  }).join('') + `<div class="task${g.xp ? ' done' : ''}"><span class="tick">${g.xp ? '✓' : ''}</span><span><b>Play Emberhold<span class="xp">up to ${GAME_MAX} XP</span></b><small>${g.text}</small></span>
+      <a class="btn${g.xp ? ' ghost' : ''}" href="/">${g.xp ? 'Play more' : 'Play'}</a></div>`;
+  const xp = BASE_XP + me.done.reduce((s, id) => s + (TASKS.find(t => t.id === id)?.xp || 0), 0) + g.xp;
+  $('xp').textContent = xp;
+  $('xpBar').style.width = Math.min(100, xp / (BASE_XP + 400 + GAME_MAX) * 100) + '%';
+}
+$('tasks').addEventListener('click', e => {
+  const a = e.target.closest('[data-task]'); if (!a) return;
+  if (!me.done.includes(a.dataset.task)) { me.done.push(a.dataset.task); store.set('emberhold.ea', me); setTimeout(render, 300); }
+});
+$('handle').value = me.handle ? '@' + me.handle : '';
+$('wallet').value = me.wallet;
+const cleanHandle = v => v.trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?(x|twitter)\.com\//i, '').split(/[/?]/)[0];
+const say = (t, ok) => { $('msg').textContent = t; $('msg').className = 'msg ' + (ok ? 'ok' : 'err'); };
+
+$('join').onclick = async () => {
+  const handle = cleanHandle($('handle').value), wallet = $('wallet').value.trim();
+  const badH = !/^[A-Za-z0-9_]{1,15}$/.test(handle), badW = !/^0x[0-9a-fA-F]{40}$/.test(wallet);
+  $('handle').setAttribute('aria-invalid', badH); $('wallet').setAttribute('aria-invalid', badW);
+  if (badH) return say('Enter your X username, like @yourname.');
+  if (badW) return say('Enter a wallet address that starts with 0x and has 40 more characters.');
+  Object.assign(me, { handle, wallet }); store.set('emberhold.ea', me);
+  $('join').disabled = true; say('Saving your place.', true);
+  try {
+    const r = await fetch(EA.api, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ handle, wallet, tasks: me.done, game: gameXp().xp }) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) say(d.error || 'The list is not open yet. Try again soon.');
+    else { say(`You are #${d.rank} with ${d.xp} XP. Come back and play to climb.`, true); loadBoard(); }
+  } catch (e) { say('The list is not open yet. Try again soon.'); }
+  $('join').disabled = false;
+};
+
+async function loadBoard(){
+  try {
+    const r = await fetch(EA.api);
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    $('boardLead').textContent = `${d.total} lords on the list. The top 100 join the allowlist.`;
+    if (!d.top.length) { $('board').innerHTML = '<p class="empty">No lords yet. Be the first.</p>'; return; }
+    $('board').innerHTML = `<table><thead><tr><th>#</th><th>Lord</th><th style="text-align:right">XP</th></tr></thead><tbody>${d.top.map((u, i) =>
+      `<tr class="${u.handle.toLowerCase() === me.handle.toLowerCase() ? 'me' : ''}${i === 99 ? ' cut' : ''}"><td>${i + 1}</td><td>@${u.handle}</td><td class="r">${u.xp}</td></tr>`).join('')}</tbody></table>`;
+  } catch (e) { $('board').innerHTML = '<p class="empty">The board opens soon.</p>'; }
+}
+addEventListener('focus', render);
+render(); loadBoard();
+</script>
+</body>
+</html>
