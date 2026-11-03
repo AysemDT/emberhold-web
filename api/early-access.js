@@ -1,7 +1,9 @@
 // Early access list for Emberhold: stores X username, wallet and XP in Upstash Redis (Vercel KV).
-// Needs KV_REST_API_URL and KV_REST_API_TOKEN (or the UPSTASH_REDIS_REST_* names) set on the Vercel project.
-const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Needs the Upstash env vars that end in KV_REST_API_URL and KV_REST_API_TOKEN (any prefix) on the Vercel project.
+// the Vercel integration may add a custom prefix (e.g. STORAGE_KV_REST_API_URL), so match on the suffix
+const envEnding = suffix => process.env[Object.keys(process.env).find(k => k.endsWith(suffix) && process.env[k])];
+const URL_ = envEnding('KV_REST_API_URL') || envEnding('REDIS_REST_URL');
+const TOKEN = envEnding('KV_REST_API_TOKEN') || envEnding('REDIS_REST_TOKEN');
 const TASKS = { follow: 100, like: 100, repost: 100, reply: 100 };
 const BASE_XP = 50, GAME_MAX = 600, TOP = 100;
 
