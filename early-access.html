@@ -15,6 +15,7 @@
   --display:"Pixelify Sans",ui-monospace,monospace; --body:VT323,ui-monospace,"Courier New",monospace;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--night);color:var(--parch);font-family:var(--body);font-size:21px;line-height:1.2;
   background-image:radial-gradient(circle at 50% 0,rgba(204,255,0,.12),transparent 55%);min-height:100vh}
 a{color:var(--lime)}
@@ -73,7 +74,7 @@ tr.me td{background:#eaffb0}
   </header>
 
   <h1>Early Access</h1>
-  <p class="lead">Answer the call, earn XP and climb the board. When $EMBER launches, the lords on this list are the first to earn it, in waves by their place.</p>
+  <p class="lead">Join the list to play. Members play Emberhold and Frostmere now; the other islands open for $EMBER holders when the token is live. Earn XP and climb the board: the lords on this list are the first to earn $EMBER, in waves by their place.</p>
   <ul class="rules">
     <li>Top 100 join the allowlist</li>
     <li>150 more are drawn from the list</li>
@@ -96,6 +97,7 @@ tr.me td{background:#eaffb0}
       <div class="bar"><i id="xpBar"></i></div>
       <button id="join" class="btn big">Join the list</button>
       <div id="msg" class="msg" role="status"></div>
+      <a id="playNow" class="btn big" href="/" hidden style="display:block;text-align:center;background:var(--leaf);color:#fff;box-shadow:0 5px 0 var(--ink)">Play Emberhold now</a>
     </section>
 
     <section class="sheet board" aria-labelledby="boardTitle" style="margin-top:0">
@@ -168,7 +170,7 @@ $('join').onclick = async () => {
     const r = await fetch(EA.api, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ handle, wallet, tasks: me.done, game: gameXp().xp }) });
     const d = await r.json().catch(() => ({}));
     if (!r.ok) say(d.error || 'The list is not open yet. Try again soon.');
-    else { say(`You are #${d.rank} with ${d.xp} XP. Come back and play to climb.`, true); loadBoard(); }
+    else { me.joined = true; store.set('emberhold.ea', me); say(`You are #${d.rank} with ${d.xp} XP. You can play now.`, true); showPlay(); loadBoard(); }
   } catch (e) { say('The list is not open yet. Try again soon.'); }
   $('join').disabled = false;
 };
@@ -178,13 +180,16 @@ async function loadBoard(){
     const r = await fetch(EA.api);
     if (!r.ok) throw 0;
     const d = await r.json();
-    $('boardLead').textContent = `${d.total} lords on the list. The top 100 join the allowlist.`;
+    $('boardLead').textContent = `${d.total} ${d.total === 1 ? 'lord' : 'lords'} on the list. The top 100 join the allowlist.`;
     if (!d.top.length) { $('board').innerHTML = '<p class="empty">No lords yet. Be the first.</p>'; return; }
     $('board').innerHTML = `<table><thead><tr><th>#</th><th>Lord</th><th style="text-align:right">XP</th></tr></thead><tbody>${d.top.map((u, i) =>
       `<tr class="${u.handle.toLowerCase() === me.handle.toLowerCase() ? 'me' : ''}${i === 99 ? ' cut' : ''}"><td>${i + 1}</td><td>@${u.handle}</td><td class="r">${u.xp}</td></tr>`).join('')}</tbody></table>`;
   } catch (e) { $('board').innerHTML = '<p class="empty">The board opens soon.</p>'; }
 }
+// joining unlocks the game on this browser: Emberhold and Frostmere until $EMBER is live
+function showPlay(){ $('playNow').hidden = !me.joined; }
 addEventListener('focus', render);
+showPlay();
 render(); loadBoard();
 </script>
 </body>

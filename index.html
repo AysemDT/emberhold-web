@@ -334,6 +334,7 @@ a.instr.early{text-decoration:none;background:var(--ink);color:#ccff00;border-co
       </table></div>
       <p>The guardian sleeps in a ring of standing stones on the far side of each island. It wakes when you step close.</p>
       <p>Islands can be locked in two ways. <b>Not built yet</b> means the island does not exist yet and the Island Fund is paying for it. <b>Needs rank</b> means the island exists and you need more halls to sail there.</p>
+      <p><b>Free to play now:</b> Emberhold and Frostmere. Sunscar, Mirewood and Cinderpeak open for $EMBER holders when the token is live.</p>
     </section>
     <section data-pane="ranks" hidden>
       <table>
@@ -427,6 +428,15 @@ a.instr.early{text-decoration:none;background:var(--ink);color:#ccff00;border-co
     <button class="close" data-close="vault">Close</button>
     <h2 id="vTitle">Royal Vault</h2>
     <div id="vBody"></div>
+  </div>
+</div>
+
+<div id="gate" class="veil" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="gaTitle" style="width:min(520px,100%);text-align:center">
+    <h2 id="gaTitle">Join Early Access to play</h2>
+    <p>Emberhold is in early access. Join the list with your X username and a wallet address. Nothing is signed and nothing moves.</p>
+    <p>Then come back and play <b>Emberhold</b> and <b>Frostmere</b>. The other islands open for $EMBER holders when the token is live.</p>
+    <div class="stack" style="margin-top:14px"><a class="btn go" href="/early-access" style="text-decoration:none;box-sizing:border-box;text-align:center">Join Early Access</a><button class="btn ghost" data-close="gate" style="box-sizing:border-box">Not now</button></div>
   </div>
 </div>
 
@@ -866,6 +876,12 @@ const ECO = {
     { id: 'crate', name: 'Supply Crate', desc: '+15 wood and +10 stone, delivered to your pack.', cost: 2 }
   ]
 };
+/* ---------- holders: edit by hand when $EMBER goes live ---------- */
+const HOLDERS = {
+  live: false,              // true = every island opens for everyone
+  free: ['home', 'frost']   // islands anyone can play before launch
+};
+const holderLock = id => !HOLDERS.live && !HOLDERS.free.includes(id);
 const freshEco = () => ({ bal: 0, wallet: 0, day: '', today: { passive: 0, expedition: 0, defense: 0 }, out: 0, earned: 0, burned: 0, pool: 0, packs: [], seen: Date.now() });
 const freshInv = () => ({ gold: 10, wood: 0, stone: 0, ice: 0, ore: 0, shroom: 0, obsidian: 0 });
 const S = { mode: 'title', guest: false, inv: freshInv(), hp: 6, builds: [], time: 20, T: 0, gT: 0, regen: 0, spawnT: 0, shake: 0, saveT: 0,
@@ -1102,6 +1118,7 @@ function goal(){
   }
   const rec = nextIsle();
   if (!rec) return { text: 'All guardians defeated. Keep growing your kingdom.' };
+  if (holderLock(rec)) return { text: `Frostmere cleared. ${ISLES[rec].name} and the far islands open for $${TOKEN.ticker} holders when the token is live` };
   const d = ISLES[rec], open = S.guest || houses() >= d.unlock;
   if (wd.id === rec) return { text: `Defeat the ${BOSSES[rec].name} in the ring of stones`, x: wd.lair.x, y: wd.lair.y };
   if (open) return { text: `Sail to ${d.name}: press ${ORDER.indexOf(rec) + 1}, or M for the sea map`, ...toDock };
@@ -1693,13 +1710,13 @@ function openSea(){
   for (const id of list2) {
     const d = ISLES[id], here = wd.id === id, open = S.guest || houses() >= d.unlock, isRec = id === rec;
     const card = document.createElement('div'); card.className = 'card' + (isRec ? ' rec' : '');
-    const status = id === 'home' ? 'Home' : S.bosses[id] ? 'Guardian defeated' : isRec ? (open ? 'Recommended next' : `Next · needs rank ${rankAt(d.unlock)}`) : !open ? `Needs rank ${rankAt(d.unlock)}` : d.noBoss ? 'Open' : 'Guardian awake';
+    const status = id === 'home' ? 'Home' : holderLock(id) ? 'Holders only' : S.bosses[id] ? 'Guardian defeated' : isRec ? (open ? 'Recommended next' : `Next · needs rank ${rankAt(d.unlock)}`) : !open ? `Needs rank ${rankAt(d.unlock)}` : d.noBoss ? 'Open' : 'Guardian awake';
     const extra = id === 'home' ? '' : d.noBoss ? '<small>Timber and stone. No guardian.</small>' : `<small>Find ${RES[NODES[d.node].res][0]}. Guardian: ${BOSSES[id].name}.</small>`;
     card.innerHTML = `<div class="band" style="background:linear-gradient(90deg,${d.pal.deep} 0 22%,${d.pal.sand} 22% 34%,${d.pal.grass} 34% 70%,${d.pal.meadow} 70%)"></div>
       <div class="in"><b>${d.name}</b><span class="st${S.bosses[id] || id === 'home' ? ' done' : isRec ? ' rec' : ''}">${status}</span><small>${d.blurb}</small>${extra}</div>`;
     const why = canSail(id), ok = !why;
     const btn = document.createElement('button'); btn.className = 'btn sm ' + (ok ? 'go' : 'ghost');
-    btn.textContent = here ? 'You are here' : ok ? `Sail · key ${list2.indexOf(id) + 1}` : !open ? `Needs rank ${rankAt(d.unlock)}` : 'Repair the dock first';
+    btn.textContent = here ? 'You are here' : holderLock(id) ? 'Holders only' : ok ? `Sail · key ${list2.indexOf(id) + 1}` : !open ? `Needs rank ${rankAt(d.unlock)}` : 'Repair the dock first';
     btn.disabled = !ok;
     btn.onclick = () => sail(id);
     card.querySelector('.in').appendChild(btn); list.appendChild(card);
@@ -1723,6 +1740,7 @@ function openSea(){
 function canSail(id){
   const f = FUTURE.find(x => x.id === id);
   if (f && (!f.built || !ISLES[id])) return notBuiltMsg(f);
+  if (holderLock(id)) return `${ISLES[id].name} is for $${TOKEN.ticker} holders. It opens when the token is live.`;
   if (wd.id === id) return 'You are already on ' + ISLES[id].name + '.';
   if (!S.dock && !S.guest) return 'Repair the dock first. Follow the gold arrow, then press E.';
   if (!(S.guest || houses() >= ISLES[id].unlock)) return `${ISLES[id].name} is built, but needs rank ${rankAt(ISLES[id].unlock)} (${ISLES[id].unlock} halls). You have ${houses()}.`;
@@ -1826,7 +1844,10 @@ function toTitle(){
   for (let i = 0; i < 6; i++) spawnRandom();
   $('hud').hidden = true; $('title').hidden = false; $('foot').hidden = false; S.mode = 'title';
 }
-$('bStart').onclick = () => enter(false);
+// on the real site you join the early access list first; the artifact preview skips this
+const eaJoined = () => { try { return !!JSON.parse(localStorage.getItem('emberhold.ea'))?.joined; } catch (e) { return false; } };
+const needsAccess = () => /^https?:$/.test(location.protocol) && !/claude/.test(location.hostname) && !eaJoined();
+$('bStart').onclick = () => needsAccess() ? openPanel('gate') : enter(false);
 $('bHow').onclick = () => openGuide('how');
 $('bInstr').onclick = () => openPanel('instr');
 document.querySelectorAll('.links button').forEach(b => b.onclick = () => openGuide(b.dataset.tab));
